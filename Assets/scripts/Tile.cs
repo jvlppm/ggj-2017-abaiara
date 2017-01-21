@@ -23,6 +23,8 @@ public class Tile : MonoBehaviour {
 
     public Character character;
 
+    public TileState state { get; private set; }
+
     Renderer renderer;
 
     void Awake() {
@@ -41,5 +43,6 @@ public class Tile : MonoBehaviour {
                 renderer.material = s.material;
             }
         }
+        this.state = state;
     }
 }

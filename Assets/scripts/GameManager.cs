@@ -10,6 +10,8 @@ public class GameManager : MonoBehaviour {
 	public UIManager ui;
 	public TileManager map;
 
+	bool moving = false;
+
 
 	Character _selectedCharacter;
 	Character selectedCharacter {
@@ -42,6 +44,10 @@ public class GameManager : MonoBehaviour {
 
 	private void OnFingerTap(LeanFinger finger)
 	{
+		if (moving) {
+			return;
+		}
+
 		if (fingerTapHandler != null) {
 			fingerTapHandler(finger);
 			return;
@@ -65,7 +71,7 @@ public class GameManager : MonoBehaviour {
 		else {
 			var tile = hit.collider.GetComponent<Tile>();
 			if (tile != null) {
-				HighlightCells(tile.point);
+				OnCellTap(tile);
 				selectedCharacter = tile.character;
 			}
 			else {
@@ -76,6 +82,10 @@ public class GameManager : MonoBehaviour {
 
 	void HighlightMovementCells()
 	{
+		if (moving) {
+			return;
+		}
+
 		if (!_selectedCharacter) {
 			Debug.LogError("No char!");
 			return;
@@ -86,27 +96,48 @@ public class GameManager : MonoBehaviour {
 			return;
 		}
 
-		foreach (var p in map.grid.GetAllNeighbors(_selectedCharacter.tile.point, 3)) {
+		foreach (var p in map.grid.GetAllNeighbors(_selectedCharacter.tile.point, _selectedCharacter.mp)) {
 			var tile = map.grid[p];
-			if (!tile) {
+			if (tile == null) {
 				Debug.LogError("Tile not found: " + p);
+				continue;
 			}
-			else {
-				tile.transform.Translate(new Vector3(0, 1, 0));
-			}
+
+			tile.SetState(TileState.HighlightMovement);
 		}
 	}
 
-	void HighlightCells(FlatHexPoint point)
+	void OnCellTap(Tile tile)
 	{
-		foreach (var p in map.grid.GetAllNeighbors(point, 1)) {
-			var tile = map.grid[p];
-			if (!tile) {
-				Debug.LogError("Tile not found: " + p);
-			}
-			else {
-				tile.SetState(TileState.HighlightMovement);
-			}
+		if (moving) {
+			return;
 		}
+
+		if (tile.state == TileState.HighlightMovement) {
+			StartCoroutine(MoveSelectedCharacter(tile));
+		}
+
+		foreach (var p in map.grid) {
+			var t = map.grid[p];
+			if (t == null) {
+				continue;
+			}
+
+			t.SetState(TileState.Normal);
+		}
+	}
+
+	IEnumerator MoveSelectedCharacter(Tile tile)
+	{
+		moving = true;
+		var ch = _selectedCharacter;
+		ch.tile.character = null;
+		var m = ch.MoveTo(tile.transform.position);
+		while (m.MoveNext()) {
+			yield return m.Current;
+		}
+		ch.tile = tile;
+		tile.character = ch;
+		moving = false;
 	}
 }

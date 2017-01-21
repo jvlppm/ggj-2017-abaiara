@@ -21,7 +21,7 @@ public class Grid<TCell> : FlatHexGrid<TCell>, IGrid<TCell, FlatHexPoint> {
 		var n = directions
 			.Select(d => new FlatHexPoint(point.X + d.X, point.Y + d.Y))
 			.Where(Contains)
-			.Where(d => d.X >=0 && d.X < width && d.Y >= 0 && d.Y < height)
+			.Where(d => d.X >=0 && d.X + 1 < width && d.Y >= 0 && d.Y + 1 < height)
 			.ToArray();
 
 		return n;
