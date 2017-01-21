@@ -4,10 +4,12 @@ using UnityEngine;
 
 public class Character : MonoBehaviour {
 
-    public float hp = 450;
-    public float ap = 2;
+    public float hp;
+    public float ap;
     public Sprite avatar;
     public string displayName;
+    public skill[] skills;
+    
     
 
 	// Use this for initialization
@@ -33,5 +35,7 @@ public class Character : MonoBehaviour {
          }
          transform.position = b;
  }
+    
+
 
 }

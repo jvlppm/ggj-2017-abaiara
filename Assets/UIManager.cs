@@ -19,6 +19,11 @@ public class UIManager : MonoBehaviour {
         Char_Avatar.sprite = Selected.avatar;
         hp_info.text = Selected.hp.ToString();
         ap_info.text = Selected.ap.ToString();
+        for (int i = 0; i < Selected.skills.Length; i++)
+        {
+            skills[i].sprite = Selected.skills[i].button;
+        }
+        
 
 	}
 	
