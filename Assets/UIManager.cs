@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour {
+public class UIManager : MonoBehaviour {
     public Character Selected;
     public Text CharacterName;
     public Image Char_Avatar;
@@ -17,6 +17,9 @@ public class GameManager : MonoBehaviour {
 	void Start () {
         CharacterName.text = Selected.displayName;
         Char_Avatar.sprite = Selected.avatar;
+        hp_info.text = Selected.hp.ToString();
+        ap_info.text = Selected.ap.ToString();
+
 	}
 	
 	// Update is called once per frame
@@ -44,12 +47,12 @@ public class GameManager : MonoBehaviour {
 
     }
 
-    public void error ()
+   /* public void error ()
     {
         if (actionPoint < 0)
         {
             error.gameObject.SetActive(true);
         }
-    }
+    }*/
 
 }

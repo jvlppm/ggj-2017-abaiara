@@ -33,4 +33,5 @@ public class Character : MonoBehaviour {
          }
          transform.position = b;
  }
+
 }
