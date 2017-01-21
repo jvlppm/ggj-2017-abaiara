@@ -13,16 +13,13 @@ public class GameManager : MonoBehaviour {
 	bool moving = false;
 
 
-	Character _selectedCharacter;
+	[SerializeField] Character _selectedCharacter;
 	Character selectedCharacter {
 		get { return _selectedCharacter; }
 		set {
 			_selectedCharacter = value;
 			if (ui != null) {
-				ui.Selected = value;
-			}
-			if (value != null) {
-				HighlightMovementCells();
+				ui.SetSelection(value);
 			}
 		}
 	}
@@ -32,6 +29,7 @@ public class GameManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		LeanTouch.OnFingerTap += OnFingerTap;
+		selectedCharacter = _selectedCharacter;
 	}
 
 	/// <summary>
@@ -59,7 +57,6 @@ public class GameManager : MonoBehaviour {
 
 		if (!Physics.Raycast(touchRay, out hit, 1000))
 		{
-			selectedCharacter = null;
 			return;
 		}
 
@@ -67,15 +64,12 @@ public class GameManager : MonoBehaviour {
 
 		if (character != null) {
 			selectedCharacter = character;
+			HighlightMovementCells();
 		}
 		else {
 			var tile = hit.collider.GetComponent<Tile>();
 			if (tile != null) {
 				OnCellTap(tile);
-				selectedCharacter = tile.character;
-			}
-			else {
-				selectedCharacter = null;
 			}
 		}
 	}
@@ -145,5 +139,7 @@ public class GameManager : MonoBehaviour {
 		tile.character = ch;
 		ch.mp -= distancesCache[tile.point];
 		moving = false;
+
+		HighlightMovementCells();
 	}
 }

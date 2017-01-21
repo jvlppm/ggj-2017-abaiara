@@ -15,16 +15,7 @@ public class UIManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        CharacterName.text = Selected.displayName;
-        Char_Avatar.sprite = Selected.avatar;
-        hp_info.text = Selected.hp.ToString();
-        ap_info.text = Selected.ap.ToString();
-        for (int i = 0; i < Selected.skills.Length; i++)
-        {
-            skills[i].sprite = Selected.skills[i].button;
-        }
         
-
 	}
 	
 	// Update is called once per frame
@@ -50,6 +41,42 @@ public class UIManager : MonoBehaviour {
     public void Skill4_Onclicked ()
     {
 
+    }
+
+    public void SetSelection(Character character)
+    {
+        Selected = character;
+
+        if (!character) {
+            if (CharacterName != null) {
+                CharacterName.text = "";
+            }
+            Char_Avatar.sprite = null;
+            hp_info.text = "";
+            ap_info.text = "";
+            foreach (var skill in skills)
+            {
+                skill.gameObject.SetActive(false);
+            }
+            return;
+        }
+
+        if (CharacterName != null)
+        {
+            CharacterName.text = character.displayName;
+        }
+        Char_Avatar.sprite = character.avatar;
+        hp_info.text = character.hp.ToString();
+        ap_info.text = character.ap.ToString();
+        int i = 0;
+        for (; i < character.skills.Length; i++)
+        {
+            skills[i].gameObject.SetActive(true);
+            skills[i].sprite = character.skills[i].button;
+        }
+        for (; i < skills.Length; i++) {
+            skills[i].gameObject.SetActive(false);
+        }
     }
 
    /* public void error ()
