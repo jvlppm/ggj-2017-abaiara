@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Character : MonoBehaviour {
+    public Tile tile;
 
     public float hp = 450;
     public float ap = 2;

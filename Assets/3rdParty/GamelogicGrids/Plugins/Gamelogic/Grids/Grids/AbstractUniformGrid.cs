@@ -241,7 +241,7 @@ namespace Gamelogic.Grids
 		#endregion
 
 		#region Neighbors
-		public IEnumerable<TPoint> GetAllNeighbors(TPoint point)
+		public virtual IEnumerable<TPoint> GetAllNeighbors(TPoint point)
 		{
 			return from direction in GetNeighborDirections()
 				   select point.Translate(direction);
