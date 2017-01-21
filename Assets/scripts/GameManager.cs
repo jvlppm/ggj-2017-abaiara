@@ -99,13 +99,13 @@ public class GameManager : MonoBehaviour {
 
 	void HighlightCells(FlatHexPoint point)
 	{
-		foreach (var p in map.grid.GetAllNeighbors(point, 3)) {
+		foreach (var p in map.grid.GetAllNeighbors(point, 1)) {
 			var tile = map.grid[p];
 			if (!tile) {
 				Debug.LogError("Tile not found: " + p);
 			}
 			else {
-				tile.transform.Translate(new Vector3(0, 1, 0));
+				tile.SetState(TileState.HighlightMovement);
 			}
 		}
 	}
