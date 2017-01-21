@@ -4,7 +4,7 @@ using UnityEngine;
 using Gamelogic.Grids;
 using System.Linq;
 
-public class Grid<TCell> : FlatHexGrid<TCell>, IGrid<TCell, FlatHexPoint> {
+public class Grid : FlatHexGrid<Tile>, IGrid<Tile, FlatHexPoint> {
 	static FlatHexPoint[] directions = new FlatHexPoint[] {
 		new FlatHexPoint(0, 2),
 		new FlatHexPoint(1, 1),
@@ -16,38 +16,48 @@ public class Grid<TCell> : FlatHexGrid<TCell>, IGrid<TCell, FlatHexPoint> {
 
 	public Grid(int width, int height) : base(width, height) {
 	}
+
+	public override bool Contains(FlatHexPoint point)
+	{
+		if (point.X < cells.GetLowerBound(0) ||
+			point.X > cells.GetUpperBound(0) ||
+			point.Y < cells.GetLowerBound(1) ||
+			point.Y > cells.GetUpperBound(1)) return false;
+		return this[point];
+	}
+
 	public override IEnumerable<FlatHexPoint> GetAllNeighbors(FlatHexPoint point) {
 		
 		var n = directions
 			.Select(d => new FlatHexPoint(point.X + d.X, point.Y + d.Y))
 			.Where(Contains)
-			.Where(d => d.X >=0 && d.X + 1 < width && d.Y >= 0 && d.Y + 1 < height)
+			.Where(d => d.X >=0 && d.X < width && d.Y >= 0 && d.Y < height)
 			.ToArray();
 
 		return n;
 	}
 
-	struct PointDistance {
-		FlatHexPoint point;
+	public struct PointDistance {
+		public FlatHexPoint point;
 		public int distance;
 	}
 
-	public IEnumerable<FlatHexPoint> GetAllNeighbors(FlatHexPoint point, int maxDistance)
+	public IEnumerable<PointDistance> GetAllNeighbors(FlatHexPoint point, int maxDistance)
 	{
-		if (maxDistance <= 0) {
-			yield break;
-		}
-		HashSet<FlatHexPoint> returned = new HashSet<FlatHexPoint>();
-		returned.Add(point);
-		foreach (var p in GetAllNeighbors(point)) {
-			if (returned.Add(p)) {
-				yield return p;
+		List<PointDistance> toProcess = new List<PointDistance>();
+		foreach (var p1 in GetAllNeighbors(point))
+			toProcess.Add(new PointDistance { point = p1, distance = 1 });
+
+		for (int currentI = 0; currentI < toProcess.Count; currentI++) {
+			var current = toProcess[currentI];
+			if (current.distance > maxDistance) {
+				yield break;
 			}
-			if (maxDistance > 1) {
-				foreach (var p2 in GetAllNeighbors(p, maxDistance - 1)) {
-					if (returned.Add(p2)) {
-						yield return p2;
-					}
+			yield return current;
+
+			foreach (var p in GetAllNeighbors(current.point)) {
+				if (!toProcess.Any(pN => pN.point == p)) {
+					toProcess.Add(new PointDistance { point = p, distance = current.distance + 1 });
 				}
 			}
 		}
@@ -60,12 +70,12 @@ public class TileManager : MonoBehaviour {
 
 	public Tile hexagonPrefab;
 
-	public Grid<Tile> grid;
+	public Grid grid;
 
 	// Use this for initialization
 	IEnumerator Start () {
 
-		grid = new Grid<Tile>(20, 25);
+		grid = new Grid(20, 25);
 
 		foreach (var tile in transform.GetComponentsInChildren<Tile>(true)) {
 			grid[tile.point] = tile;

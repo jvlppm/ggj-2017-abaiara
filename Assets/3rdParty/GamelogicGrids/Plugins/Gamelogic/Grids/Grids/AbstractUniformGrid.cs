@@ -40,7 +40,7 @@ namespace Gamelogic.Grids
 
 		//--- Yes, even subclasses should not touch these, to make sure offsets always work as expected!
 		//private TPoint offset;
-		private readonly TCell[,] cells;
+		protected readonly TCell[,] cells;
 		
 		[NonSerialized]
 		private Func<TPoint, TPoint> gridPointTransform;
@@ -234,7 +234,7 @@ namespace Gamelogic.Grids
 		with GetEnumerator (all points returned by the  enumerator must be Inside,
 		and all points that are inside must be returned by the enumerator).
 	*/
-		public bool Contains(TPoint point)
+		public virtual bool Contains(TPoint point)
 		{
 			return contains(InversePointTransform(point));
 		}

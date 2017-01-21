@@ -80,6 +80,8 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
+	readonly Dictionary<FlatHexPoint, int> distancesCache = new Dictionary<FlatHexPoint, int>();
+
 	void HighlightMovementCells()
 	{
 		if (moving) {
@@ -96,10 +98,13 @@ public class GameManager : MonoBehaviour {
 			return;
 		}
 
+		distancesCache.Clear();
+
 		foreach (var p in map.grid.GetAllNeighbors(_selectedCharacter.tile.point, _selectedCharacter.mp)) {
-			var tile = map.grid[p];
+			distancesCache[p.point] = p.distance;
+			var tile = map.grid[p.point];
 			if (tile == null) {
-				Debug.LogError("Tile not found: " + p);
+				Debug.LogError("Tile not found: " + p.point);
 				continue;
 			}
 
@@ -138,6 +143,7 @@ public class GameManager : MonoBehaviour {
 		}
 		ch.tile = tile;
 		tile.character = ch;
+		ch.mp -= distancesCache[tile.point];
 		moving = false;
 	}
 }
