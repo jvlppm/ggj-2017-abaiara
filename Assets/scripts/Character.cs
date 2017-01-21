@@ -2,12 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class character : MonoBehaviour {
+public class Character : MonoBehaviour {
+
+    public float hp = 450;
+    public float ap = 2;
+    public Sprite avatar;
+    public string displayName;
+    
 
 	// Use this for initialization
 	void Start () {
-		
-	}
+        
+    }
 	
 	// Update is called once per frame
 	void Update () {

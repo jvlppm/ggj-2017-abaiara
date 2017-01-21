@@ -6,18 +6,17 @@ using UnityEngine.UI;
 public class skill : MonoBehaviour {
     int actionPoint;
     public Text error;
+    public Sprite button;
+
     // Use this for initialization
     void Start()
     {
-        actionPoint = 2;
+        
     }
 	
 	// Update is called once per frame
 	void Update () {
-		if (actionPoint < 0)
-        {
-            error.gameObject.SetActive(true);
-        }
+		
       
 	}
     private void OnMouseDown()
