@@ -23,7 +23,7 @@ public class Tile : MonoBehaviour {
 
     public StateMaterial[] materials;
     public Material[] teamColors;
-    public Material selectedColor;
+    public Material[] selectedColors;
 
     Character _character;
 
@@ -49,21 +49,26 @@ public class Tile : MonoBehaviour {
         }
     }
 
-    public void SetState(TileState state) {
+    public void SetState(TileState state, bool updateView = true) {
         this.state = state;
-        RefreshColor();
+        if (updateView) {
+            RefreshColor();
+        }
     }
 
     public void RefreshColor()
     {
-        if (character != null && character.selected) {
-            view.material = selectedColor;
-            return;
-        }
+        if (character != null)
+        {
+            if (character.selected) {
+                view.material = selectedColors[character.team];
+                return;
+            }
 
-        if (state == TileState.Normal && character != null && character.team < teamColors.Length) {
-            view.material = teamColors[character.team];
-            return;
+            if (state == TileState.Normal) {
+                view.material = teamColors[character.team];
+                return;
+            }
         }
 
         foreach (var s in materials) {

@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 
 	bool moving = false;
 
+	int currentTeam = 0;
+
 
 	[SerializeField] Character _selectedCharacter;
 	Character selectedCharacter {
@@ -28,7 +30,7 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 			if (_selectedCharacter) {
 				_selectedCharacter.selected = true;
 			}
-			if (ui != null) {
+			if (ui != null && value) {
 				ui.SetSelection(value);
 			}
 		}
@@ -153,7 +155,7 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 	void ColorAttackCell(Tile tile)
 	{
 		if (tile.character != null) {
-			if (tile.character.team == 0) {
+			if (tile.character.team == currentTeam) {
 				return;
 			}
 			tile.SetState(TileState.AttackHighlight);
@@ -186,9 +188,9 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 
     void OnCharacterTap(Character character)
 	{
-		if (character.team != 0) {
-			if (distancesCache.ContainsKey(character.tile.point) && character.tile.state == TileState.Attack) {
-				Debug.Log("Attack!");
+		if (character.team != currentTeam) {
+			if (selectedCharacter != null && distancesCache.ContainsKey(character.tile.point) && character.tile.state == TileState.AttackHighlight) {
+				AttackCharacter(character);
 			}
 			return;
 		}
@@ -196,6 +198,27 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 		currentSkill = null;
 		selectedCharacter = character;
 		HighlightMovementCells(character);
+	}
+
+	void AttackCharacter(Character character)
+	{
+		if (ui) {
+			ui.HitAvatar(character);
+		}
+
+		selectedCharacter.ap = Mathf.Max(0, selectedCharacter.ap - currentSkill.skill.ap);
+		character.hp = Mathf.Max(0, character.hp - currentSkill.skill.damage.GenerateValue());
+
+		if (currentSkill.skill.ap > selectedCharacter.ap) {
+			currentSkill.canUse = false;
+			ResetCellColors();
+		}
+
+		if (character.hp <= 0) {
+			character.tile.character = null;
+			character.tile.SetState(TileState.Attack);
+			Destroy(character.gameObject);
+		}
 	}
 
 	void OnCellTap(Tile tile)
