@@ -6,6 +6,9 @@ using System;
 using Gamelogic.Grids;
 using UI;
 using UnityEngine.EventSystems;
+using System.Linq;
+using System.Threading.Tasks;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 	public Camera gameCamera;
@@ -18,7 +21,7 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 
 	bool moving = false;
 
-	int currentTeam = 0;
+	int currentTeam = -1;
 
 	[SerializeField] Character _selectedCharacter;
 	Character selectedCharacter {
@@ -30,7 +33,10 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 	// Use this for initialization
 	void Start () {
 		LeanTouch.OnFingerTap += OnFingerTap;
-		SetCurrentTeam(0);
+		
+		AnimatedMessage.instance.ShowMessageAsync("Start").ContinueWith(t => {
+			SetCurrentTeam(0);
+		});
 	}
 
 	void SetCurrentTeam(int team)
@@ -227,6 +233,21 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 			character.tile.character = null;
 			character.tile.SetState(TileState.Attack);
 			Destroy(character.gameObject);
+
+			Task completion;
+
+			if (!characters.Any(c => c.team == 0)) {
+				completion = AnimatedMessage.instance.ShowMessageAsync("You lose!");
+			}
+			else {
+				completion = AnimatedMessage.instance.ShowMessageAsync("You win!");
+			}
+
+			if (completion != null) {
+				completion.ContinueWith(t => {
+					SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+				});
+			}
 		}
 	}
 
