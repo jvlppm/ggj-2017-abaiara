@@ -12,28 +12,17 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 	public UIManager ui;
 	public TileManager map;
 
+	public Character[] characters;
+
 	SkillButton currentSkill;
 
 	bool moving = false;
 
 	int currentTeam = 0;
 
-
 	[SerializeField] Character _selectedCharacter;
 	Character selectedCharacter {
 		get { return _selectedCharacter; }
-		set {
-			if (_selectedCharacter) {
-				_selectedCharacter.selected = false;
-			}
-			_selectedCharacter = value;
-			if (_selectedCharacter) {
-				_selectedCharacter.selected = true;
-			}
-			if (ui != null && value) {
-				ui.SetSelection(value);
-			}
-		}
 	}
 
 	Action<LeanFinger> fingerTapHandler;
@@ -41,9 +30,32 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 	// Use this for initialization
 	void Start () {
 		LeanTouch.OnFingerTap += OnFingerTap;
-		selectedCharacter = _selectedCharacter;
+		SetCurrentTeam(0);
+	}
+
+	void SetCurrentTeam(int team)
+	{
+		currentTeam = team;
+		foreach (var p in characters) {
+			if (p.team == currentTeam) {
+				SetSelection(p);
+				break;
+			}
+		}
+	}
+
+	void SetSelection(Character ch)
+	{
 		if (_selectedCharacter) {
-			HighlightMovementCells(_selectedCharacter);
+			_selectedCharacter.selected = false;
+		}
+		_selectedCharacter = ch;
+		if (_selectedCharacter) {
+			_selectedCharacter.selected = true;
+		}
+		HighlightMovementCells(ch);
+		if (ui != null && ch) {
+			ui.SetSelection(ch);
 		}
 	}
 
@@ -196,8 +208,7 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 		}
 
 		currentSkill = null;
-		selectedCharacter = character;
-		HighlightMovementCells(character);
+		SetSelection(character);
 	}
 
 	void AttackCharacter(Character character)
@@ -259,4 +270,21 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
     {
 		HighlightSkillCells(_selectedCharacter, skill);
     }
+
+	public void OnNextPlayerClick()
+	{
+		if (moving) {
+			return;
+		}
+
+		currentSkill = null;
+		foreach (var p in characters) {
+			if (p && p.team == currentTeam) {
+				p.ap = p.maxAp;
+				p.mp = p.maxMp;
+			}
+		}
+
+		SetCurrentTeam((currentTeam + 1) % 2);
+	}
 }

@@ -14,7 +14,7 @@ public class Character : MonoBehaviour {
 
     public float maxHp { get; private set; }
     public float maxAp { get; private set; }
-    public float maxMp { get; private set; }
+    public int maxMp { get; private set; }
 
     public bool selected {
         get { return _selected; }
@@ -31,9 +31,19 @@ public class Character : MonoBehaviour {
     public string displayName;
     public Skill[] skills;
 
-    float defaultScaleX;
+    [SerializeField]bool lookingLeft;
+
     Vector3 targetScale;
     bool _selected;
+
+    /// <summary>
+    /// Called when the script is loaded or a value is changed in the
+    /// inspector (Called in the editor only).
+    /// </summary>
+    void OnValidate()
+    {
+        transform.localScale = lookingLeft? new Vector3(-1, 1, 1) : Vector3.one;
+    }
     
     /// <summary>
     /// Awake is called when the script instance is being loaded.
@@ -43,7 +53,6 @@ public class Character : MonoBehaviour {
         maxHp = hp;
         maxAp = ap;
         maxMp = mp;
-        this.defaultScaleX = body.localScale.x;
         this.targetScale = body.localScale;
     }
 
@@ -65,18 +74,9 @@ public class Character : MonoBehaviour {
     }
 
     public IEnumerator MoveTo(Vector3 b) {
-        var defaultScale = new Vector3(
-            defaultScaleX,
-            body.localScale.y,
-            body.localScale.z
-        );
+        lookingLeft = b.x < transform.position.x;
+        transform.localScale = lookingLeft? new Vector3(-1, 1, 1) : Vector3.one;
 
-        if (b.x < transform.position.x) {
-            targetScale = Vector3.Scale(defaultScale, new Vector3(-1, 1, 1));
-        }
-        else {
-            targetScale = defaultScale;
-        }
         var a = transform.position;
          float step = (speed / (a - b).magnitude) * Time.fixedDeltaTime;
          float t = 0;
