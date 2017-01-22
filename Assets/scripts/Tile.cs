@@ -5,7 +5,8 @@ using UnityEngine;
 public enum TileState
 {
     Normal,
-    HighlightMovement
+    Move,
+    Attack
 }
 
 [Serializable]

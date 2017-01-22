@@ -4,8 +4,9 @@ using UnityEngine;
 using Lean.Touch;
 using System;
 using Gamelogic.Grids;
+using UI;
 
-public class GameManager : MonoBehaviour {
+public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 	public Camera gameCamera;
 	public UIManager ui;
 	public TileManager map;
@@ -64,7 +65,7 @@ public class GameManager : MonoBehaviour {
 
 		if (character != null) {
 			selectedCharacter = character;
-			HighlightMovementCells();
+			HighlightMovementCells(character);
 		}
 		else {
 			var tile = hit.collider.GetComponent<Tile>();
@@ -76,33 +77,52 @@ public class GameManager : MonoBehaviour {
 
 	readonly Dictionary<FlatHexPoint, int> distancesCache = new Dictionary<FlatHexPoint, int>();
 
-	void HighlightMovementCells()
+	void HighlightMovementCells(Character character)
 	{
-		if (moving) {
-			return;
-		}
-
-		if (!_selectedCharacter) {
+		if (!character) {
 			Debug.LogError("No char!");
 			return;
 		}
 
-		if (!_selectedCharacter.tile) {
+		if (!character.tile) {
 			Debug.LogError("No tile!");
 			return;
 		}
 
-		distancesCache.Clear();
+		HighlightNeighbors(character.tile, character.mp, TileState.Move);
+	}
 
-		foreach (var p in map.grid.GetAllNeighbors(_selectedCharacter.tile.point, _selectedCharacter.mp)) {
+	void HighlightSkillCells(Character character, Skill skill)
+	{
+		if (!character) {
+			Debug.LogError("No char!");
+			return;
+		}
+
+		if (!character.tile) {
+			Debug.LogError("No tile!");
+			return;
+		}
+
+		HighlightNeighbors(character.tile, (int)Mathf.Min(skill.ap, character.ap), TileState.Attack);
+	}
+
+	public void HighlightNeighbors(Tile tile, int maxDistance, TileState state) {
+		foreach (var p in distancesCache) {
+			var t = map.grid[p.Key];
+			t.SetState(TileState.Normal);
+		}
+
+		distancesCache.Clear();
+		foreach (var p in map.grid.GetAllNeighbors(tile.point, maxDistance)) {
 			distancesCache[p.point] = p.distance;
-			var tile = map.grid[p.point];
-			if (tile == null) {
+			var t = map.grid[p.point];
+			if (t == null) {
 				Debug.LogError("Tile not found: " + p.point);
 				continue;
 			}
 
-			tile.SetState(TileState.HighlightMovement);
+			t.SetState(state);
 		}
 	}
 
@@ -112,7 +132,7 @@ public class GameManager : MonoBehaviour {
 			return;
 		}
 
-		if (tile.state == TileState.HighlightMovement) {
+		if (tile.state == TileState.Move) {
 			StartCoroutine(MoveSelectedCharacter(tile));
 		}
 
@@ -140,6 +160,16 @@ public class GameManager : MonoBehaviour {
 		ch.mp -= distancesCache[tile.point];
 		moving = false;
 
-		HighlightMovementCells();
+		if (ch == selectedCharacter) {
+			if (ui != null) {
+				ui.SetSelection(ch);
+			}
+			HighlightMovementCells(ch);
+		}
 	}
+
+    void SkillButton.IHandler.OnClick(Skill skill)
+    {
+		HighlightSkillCells(_selectedCharacter, skill);
+    }
 }

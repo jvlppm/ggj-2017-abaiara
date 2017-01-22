@@ -11,7 +11,7 @@ public class Character : MonoBehaviour {
     public int mp;
     public Sprite avatar;
     public string displayName;
-    public skill[] skills;
+    public Skill[] skills;
     
     
 

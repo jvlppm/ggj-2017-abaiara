@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour {
@@ -11,7 +9,7 @@ public class UIManager : MonoBehaviour {
     public Image ap_bar;
     public Text hp_info;
     public Text ap_info;
-    public Image [] skills;
+    public UI.SkillButton [] skills;
 
 	// Use this for initialization
 	void Start () {
@@ -72,7 +70,7 @@ public class UIManager : MonoBehaviour {
         for (; i < character.skills.Length; i++)
         {
             skills[i].gameObject.SetActive(true);
-            skills[i].sprite = character.skills[i].button;
+            skills[i].SetSkill( character.skills[i] );
         }
         for (; i < skills.Length; i++) {
             skills[i].gameObject.SetActive(false);
