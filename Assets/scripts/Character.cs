@@ -17,7 +17,9 @@ public class Character : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        
+        if (tile) {
+            tile.character = this;
+        }
     }
 	
 	// Update is called once per frame

@@ -22,14 +22,14 @@ public class Tile : MonoBehaviour {
 
     public StateMaterial[] materials;
 
-    public Character character;
+    [System.NonSerializedAttribute] public Character character;
 
     public TileState state { get; private set; }
 
-    Renderer renderer;
+    Renderer view;
 
     void Awake() {
-        renderer = GetComponentInChildren<Renderer>();
+        view = GetComponentInChildren<Renderer>();
     }
 
     public FlatHexPoint point {
@@ -41,7 +41,7 @@ public class Tile : MonoBehaviour {
     public void SetState(TileState state) {
         foreach (var s in materials) {
             if (s.state == state) {
-                renderer.material = s.material;
+                view.material = s.material;
             }
         }
         this.state = state;
