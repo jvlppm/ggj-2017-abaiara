@@ -21,8 +21,18 @@ public class Tile : MonoBehaviour {
     public int z;
 
     public StateMaterial[] materials;
+    public Material[] teamColors;
+    public Material selectedColor;
 
-    [System.NonSerializedAttribute] public Character character;
+    Character _character;
+
+    public Character character {
+        get { return _character; }
+        set {
+            _character = value;
+            RefreshColor();
+        }
+    }
 
     public TileState state { get; private set; }
 
@@ -39,11 +49,26 @@ public class Tile : MonoBehaviour {
     }
 
     public void SetState(TileState state) {
+        this.state = state;
+        RefreshColor();
+    }
+
+    public void RefreshColor()
+    {
+        if (character != null && character.selected) {
+            view.material = selectedColor;
+            return;
+        }
+
+        if (state == TileState.Normal && character != null && character.team < teamColors.Length) {
+            view.material = teamColors[character.team];
+            return;
+        }
+
         foreach (var s in materials) {
             if (s.state == state) {
                 view.material = s.material;
             }
         }
-        this.state = state;
     }
 }

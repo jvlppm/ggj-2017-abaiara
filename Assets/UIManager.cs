@@ -49,7 +49,7 @@ public class UIManager : MonoBehaviour {
             if (CharacterName != null) {
                 CharacterName.text = "";
             }
-            Char_Avatar.sprite = null;
+            Char_Avatar.gameObject.SetActive(false);
             hp_info.text = "";
             ap_info.text = "";
             foreach (var skill in skills)
@@ -58,19 +58,23 @@ public class UIManager : MonoBehaviour {
             }
             return;
         }
+        Char_Avatar.gameObject.SetActive(true);
 
         if (CharacterName != null)
         {
             CharacterName.text = character.displayName;
         }
         Char_Avatar.sprite = character.avatar;
-        hp_info.text = character.hp.ToString();
-        ap_info.text = character.ap.ToString();
+        hp_info.text = character.hp + "/" + character.maxHp;
+        ap_info.text = character.ap + "/" + character.maxAp;
         int i = 0;
         for (; i < character.skills.Length; i++)
         {
+            var skill = character.skills[i];
+            skills[i].canUse = skill.activation == Skill.Activation.Button && character.ap >= skill.ap;
+            
             skills[i].gameObject.SetActive(true);
-            skills[i].SetSkill( character.skills[i] );
+            skills[i].SetSkill( skill );
         }
         for (; i < skills.Length; i++) {
             skills[i].gameObject.SetActive(false);

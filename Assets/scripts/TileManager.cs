@@ -45,15 +45,16 @@ public class Grid : FlatHexGrid<Tile>, IGrid<Tile, FlatHexPoint> {
 	public IEnumerable<PointDistance> GetAllNeighbors(FlatHexPoint point, int maxDistance)
 	{
 		List<PointDistance> toProcess = new List<PointDistance>();
-		foreach (var p1 in GetAllNeighbors(point))
-			toProcess.Add(new PointDistance { point = p1, distance = 1 });
+		toProcess.Add(new PointDistance { point = point, distance = 0 });
 
 		for (int currentI = 0; currentI < toProcess.Count; currentI++) {
 			var current = toProcess[currentI];
 			if (current.distance > maxDistance) {
 				yield break;
 			}
-			yield return current;
+			if (current.distance > 0) {
+				yield return current;
+			}
 
 			foreach (var p in GetAllNeighbors(current.point)) {
 				if (!toProcess.Any(pN => pN.point == p)) {
@@ -73,7 +74,7 @@ public class TileManager : MonoBehaviour {
 	public Grid grid;
 
 	// Use this for initialization
-	IEnumerator Start () {
+	void Awake () {
 
 		grid = new Grid(20, 25);
 
@@ -125,8 +126,6 @@ public class TileManager : MonoBehaviour {
 		// else {
 		// 	Debug.LogError("Path not found");
 		// }
-
-		yield break;
 	}
 
 	Vector2 ToVector(FlatHexPoint point)

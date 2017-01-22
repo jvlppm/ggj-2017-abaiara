@@ -5,11 +5,14 @@ using Lean.Touch;
 using System;
 using Gamelogic.Grids;
 using UI;
+using UnityEngine.EventSystems;
 
 public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 	public Camera gameCamera;
 	public UIManager ui;
 	public TileManager map;
+
+	SkillButton currentSkill;
 
 	bool moving = false;
 
@@ -18,7 +21,13 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 	Character selectedCharacter {
 		get { return _selectedCharacter; }
 		set {
+			if (_selectedCharacter) {
+				_selectedCharacter.selected = false;
+			}
 			_selectedCharacter = value;
+			if (_selectedCharacter) {
+				_selectedCharacter.selected = true;
+			}
 			if (ui != null) {
 				ui.SetSelection(value);
 			}
@@ -31,6 +40,9 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 	void Start () {
 		LeanTouch.OnFingerTap += OnFingerTap;
 		selectedCharacter = _selectedCharacter;
+		if (_selectedCharacter) {
+			HighlightMovementCells(_selectedCharacter);
+		}
 	}
 
 	/// <summary>
@@ -42,6 +54,14 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 	}
 
 	private void OnFingerTap(LeanFinger finger)
+	{
+		HandleFingerTap(finger);
+		if (currentSkill != null) {
+			EventSystem.current.SetSelectedGameObject(currentSkill.gameObject, null);
+		}
+	}
+
+	void HandleFingerTap(LeanFinger finger)
 	{
 		if (moving) {
 			return;
@@ -56,22 +76,19 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 
 		RaycastHit hit;
 
-		if (!Physics.Raycast(touchRay, out hit, 1000))
+		if (!Physics.Raycast(touchRay, out hit, 400))
 		{
 			return;
 		}
 
-		var character = hit.collider.GetComponent<Character>();
-
+		var character = hit.collider.transform.parent.GetComponent<Character>();
 		if (character != null) {
-			selectedCharacter = character;
-			HighlightMovementCells(character);
+			OnCharacterTap(character);
+			return;
 		}
-		else {
-			var tile = hit.collider.GetComponent<Tile>();
-			if (tile != null) {
-				OnCellTap(tile);
-			}
+		var tile = hit.collider.GetComponent<Tile>();
+		if (tile != null) {
+			OnCellTap(tile);
 		}
 	}
 
@@ -89,10 +106,10 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 			return;
 		}
 
-		HighlightNeighbors(character.tile, character.mp, TileState.Move);
+		HighlightNeighbors(character.tile, character.mp, TileState.Move, t => t.character == null);
 	}
 
-	void HighlightSkillCells(Character character, Skill skill)
+	void HighlightSkillCells(Character character, SkillButton skillButton)
 	{
 		if (!character) {
 			Debug.LogError("No char!");
@@ -104,10 +121,17 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 			return;
 		}
 
-		HighlightNeighbors(character.tile, (int)Mathf.Min(skill.ap, character.ap), TileState.Attack);
+		if (character.ap < skillButton.skill.ap)
+		{
+			Debug.LogError("Not enough points!");
+			return;
+		}
+
+		currentSkill = skillButton;
+		HighlightNeighbors(character.tile, skillButton.skill.range, TileState.Attack, t => t.character == null || t.character.team > 0);
 	}
 
-	public void HighlightNeighbors(Tile tile, int maxDistance, TileState state) {
+	public void HighlightNeighbors(Tile tile, int maxDistance, TileState state, Func<Tile, bool> canHighlight = null) {
 		foreach (var p in distancesCache) {
 			var t = map.grid[p.Key];
 			t.SetState(TileState.Normal);
@@ -122,8 +146,39 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 				continue;
 			}
 
+			if (canHighlight != null) {
+				if (!canHighlight(t))
+					continue;
+			}
+
 			t.SetState(state);
 		}
+	}
+
+	void ResetCellColors()
+	{
+		foreach (var p in map.grid) {
+			var t = map.grid[p];
+			if (t == null) {
+				continue;
+			}
+
+			t.SetState(TileState.Normal);
+		}
+	}
+
+    void OnCharacterTap(Character character)
+	{
+		if (character.team != 0) {
+			if (distancesCache.ContainsKey(character.tile.point) && character.tile.state == TileState.Attack) {
+				Debug.Log("Attack!");
+			}
+			return;
+		}
+
+		currentSkill = null;
+		selectedCharacter = character;
+		HighlightMovementCells(character);
 	}
 
 	void OnCellTap(Tile tile)
@@ -133,16 +188,8 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 		}
 
 		if (tile.state == TileState.Move) {
+			ResetCellColors();
 			StartCoroutine(MoveSelectedCharacter(tile));
-		}
-
-		foreach (var p in map.grid) {
-			var t = map.grid[p];
-			if (t == null) {
-				continue;
-			}
-
-			t.SetState(TileState.Normal);
 		}
 	}
 
@@ -168,7 +215,7 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 		}
 	}
 
-    void SkillButton.IHandler.OnClick(Skill skill)
+    void SkillButton.IHandler.OnClick(SkillButton skill)
     {
 		HighlightSkillCells(_selectedCharacter, skill);
     }
