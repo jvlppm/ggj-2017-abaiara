@@ -6,7 +6,8 @@ public enum TileState
 {
     Normal,
     Move,
-    Attack
+    Attack,
+    AttackHighlight
 }
 
 [Serializable]

@@ -106,7 +106,7 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 			return;
 		}
 
-		HighlightNeighbors(character.tile, character.mp, TileState.Move, t => t.character == null);
+		HighlightNeighbors(character.tile, character.mp, ColorPathCell);
 	}
 
 	void HighlightSkillCells(Character character, SkillButton skillButton)
@@ -128,10 +128,10 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 		}
 
 		currentSkill = skillButton;
-		HighlightNeighbors(character.tile, skillButton.skill.range, TileState.Attack, t => t.character == null || t.character.team > 0);
+		HighlightNeighbors(character.tile, skillButton.skill.range, ColorAttackCell);
 	}
 
-	public void HighlightNeighbors(Tile tile, int maxDistance, TileState state, Func<Tile, bool> canHighlight = null) {
+	public void HighlightNeighbors(Tile tile, int maxDistance, Action<Tile> coloring) {
 		foreach (var p in distancesCache) {
 			var t = map.grid[p.Key];
 			t.SetState(TileState.Normal);
@@ -146,13 +146,30 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 				continue;
 			}
 
-			if (canHighlight != null) {
-				if (!canHighlight(t))
-					continue;
-			}
-
-			t.SetState(state);
+			coloring(t);
 		}
+	}
+
+	void ColorAttackCell(Tile tile)
+	{
+		if (tile.character != null) {
+			if (tile.character.team == 0) {
+				return;
+			}
+			tile.SetState(TileState.AttackHighlight);
+			return;
+		}
+
+		tile.SetState(TileState.Attack);
+	}
+
+	void ColorPathCell(Tile tile)
+	{
+		if (tile.character != null) {
+			return;
+		}
+
+		tile.SetState(TileState.Move);
 	}
 
 	void ResetCellColors()
