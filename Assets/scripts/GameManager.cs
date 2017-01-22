@@ -71,9 +71,7 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 	private void OnFingerTap(LeanFinger finger)
 	{
 		HandleFingerTap(finger);
-		if (currentSkill != null) {
-			EventSystem.current.SetSelectedGameObject(currentSkill.gameObject, null);
-		}
+		EventSystem.current.SetSelectedGameObject(currentSkill? currentSkill.gameObject : null, null);
 	}
 
 	void HandleFingerTap(LeanFinger finger)
@@ -275,6 +273,11 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 
     void SkillButton.IHandler.OnClick(SkillButton skill)
     {
+		if (moving) {
+			EventSystem.current.SetSelectedGameObject(currentSkill? currentSkill.gameObject : null, null);
+			return;
+		}
+
 		if (currentSkill == skill) {
 			currentSkill = null;
 			HighlightMovementCells(_selectedCharacter);
