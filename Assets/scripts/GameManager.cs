@@ -34,7 +34,7 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 	void Start () {
 		LeanTouch.OnFingerTap += OnFingerTap;
 		
-		AnimatedMessage.instance.ShowMessageAsync("Start").ContinueWith(t => {
+		AnimatedMessage.instance.ShowMessageAsync("Arena 3-4").ContinueWith(t => {
 			SetCurrentTeam(0);
 		});
 	}
@@ -237,10 +237,10 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 			Task completion;
 
 			if (!characters.Any(c => c.team == 0)) {
-				completion = AnimatedMessage.instance.ShowMessageAsync("You lose!");
+				completion = AnimatedMessage.instance.ShowMessageAsync("Vitória Player 2!");
 			}
 			else {
-				completion = AnimatedMessage.instance.ShowMessageAsync("You win!");
+				completion = AnimatedMessage.instance.ShowMessageAsync("Vitória Player 1!");
 			}
 
 			if (completion != null) {
