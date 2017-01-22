@@ -33,7 +33,6 @@ public class Character : MonoBehaviour {
 
     [SerializeField]bool lookingLeft;
 
-    Vector3 targetScale;
     bool _selected;
 
     /// <summary>
@@ -53,7 +52,6 @@ public class Character : MonoBehaviour {
         maxHp = hp;
         maxAp = ap;
         maxMp = mp;
-        this.targetScale = body.localScale;
     }
 
 	// Use this for initialization
@@ -62,11 +60,6 @@ public class Character : MonoBehaviour {
             tile.character = this;
         }
     }
-	
-	// Update is called once per frame
-	void Update () {
-		body.localScale = targetScale;//Vector3.Lerp(body.localScale, targetScale, 0.4f);
-	}
 
     void moveTo (Vector3 position)
     {

@@ -46,6 +46,7 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 
 	void SetSelection(Character ch)
 	{
+		currentSkill = null;
 		if (_selectedCharacter) {
 			_selectedCharacter.selected = false;
 		}
@@ -141,7 +142,6 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 			return;
 		}
 
-		currentSkill = skillButton;
 		HighlightNeighbors(character.tile, skillButton.skill.range, ColorAttackCell);
 	}
 
@@ -207,7 +207,6 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 			return;
 		}
 
-		currentSkill = null;
 		SetSelection(character);
 	}
 
@@ -242,6 +241,13 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 			ResetCellColors();
 			StartCoroutine(MoveSelectedCharacter(tile));
 		}
+
+		if (tile.character != null) {
+			OnCharacterTap(tile.character);
+		}
+		else {
+			SetSelection(_selectedCharacter);
+		}
 	}
 
 	IEnumerator MoveSelectedCharacter(Tile tile)
@@ -268,6 +274,13 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 
     void SkillButton.IHandler.OnClick(SkillButton skill)
     {
+		if (currentSkill == skill) {
+			currentSkill = null;
+			HighlightMovementCells(_selectedCharacter);
+			return;
+		}
+
+		currentSkill = skill;
 		HighlightSkillCells(_selectedCharacter, skill);
     }
 
@@ -277,7 +290,6 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 			return;
 		}
 
-		currentSkill = null;
 		foreach (var p in characters) {
 			if (p && p.team == currentTeam) {
 				p.ap = p.maxAp;
