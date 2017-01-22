@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour {
-    public Character Avatar;
+    [System.NonSerialized] public Character Avatar;
     public Character Selected;
     public Text CharacterName;
     public Image Char_Avatar;
