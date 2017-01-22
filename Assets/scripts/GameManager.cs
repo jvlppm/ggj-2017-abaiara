@@ -96,7 +96,7 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 			return;
 		}
 
-		var character = hit.collider.transform.parent.GetComponent<Character>();
+		var character = hit.collider.transform.GetComponentInParent<Character>();
 		if (character != null) {
 			OnCharacterTap(character);
 			return;
@@ -219,9 +219,10 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 		selectedCharacter.ap = Mathf.Max(0, selectedCharacter.ap - currentSkill.skill.ap);
 		character.hp = Mathf.Max(0, character.hp - currentSkill.skill.damage.GenerateValue());
 
+		ui.Refresh();
+
 		if (currentSkill.skill.ap > selectedCharacter.ap) {
-			currentSkill.canUse = false;
-			ResetCellColors();
+			HighlightMovementCells(selectedCharacter);
 		}
 
 		if (character.hp <= 0) {
@@ -290,13 +291,22 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 			return;
 		}
 
+		var nextTeam = (currentTeam + 1) % 2;
+		if (nextTeam == 0) {
+			foreach (var p in characters) {
+				p.maxAp = Mathf.Min(10, p.maxAp + 1);
+			}
+		}
+
 		foreach (var p in characters) {
-			if (p && p.team == currentTeam) {
-				p.ap = p.maxAp;
+			if (p && p.team == nextTeam) {
+				p.ap += Mathf.Min(5, p.maxAp - p.ap);
 				p.mp = p.maxMp;
 			}
 		}
 
-		SetCurrentTeam((currentTeam + 1) % 2);
+		SetCurrentTeam(nextTeam);
+
+		
 	}
 }

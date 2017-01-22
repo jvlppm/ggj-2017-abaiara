@@ -126,6 +126,12 @@ public class UIManager : MonoBehaviour {
         Avatar = null;
         SetAvatarView(character);
 
+        Refresh();
+    }
+
+    public void Refresh()
+    {
+        var character = Selected;
         if (!character) {
             ap_info.text = "";
             ap_bar.fillAmount = 1;

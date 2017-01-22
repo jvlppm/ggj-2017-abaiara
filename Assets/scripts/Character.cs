@@ -13,7 +13,7 @@ public class Character : MonoBehaviour {
     public int mp;
 
     public float maxHp { get; private set; }
-    public float maxAp { get; private set; }
+    public float maxAp { get; set; }
     public int maxMp { get; private set; }
 
     public bool selected {
