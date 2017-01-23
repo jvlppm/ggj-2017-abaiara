@@ -239,12 +239,12 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 			character.tile.SetState(TileState.Attack);
 			Destroy(character.gameObject);
 
-			Task completion;
+			Task completion = null;
 
 			if (!characters.Any(c => c.team == 0)) {
 				completion = AnimatedMessage.instance.ShowMessageAsync("Vitória Player 2!");
 			}
-			else {
+			else if (!characters.Any(c => c.team == 1)) {
 				completion = AnimatedMessage.instance.ShowMessageAsync("Vitória Player 1!");
 			}
 
