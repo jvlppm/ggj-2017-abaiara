@@ -149,10 +149,10 @@ public class UIManager : MonoBehaviour {
         for (; i < character.skills.Length; i++)
         {
             var skill = character.skills[i];
-            skills[i].canUse = skill.activation == Skill.Activation.Button && character.ap >= skill.ap;
-            
-            skills[i].gameObject.SetActive(true);
-            skills[i].SetSkill( skill );
+            var button = skills[i];
+            button.gameObject.SetActive(true);
+            button.SetSkill( skill );
+            button.canUse = skill.activation == Skill.Activation.Button && character.ap >= skill.ap;
         }
         for (; i < skills.Length; i++) {
             skills[i].gameObject.SetActive(false);

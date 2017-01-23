@@ -140,6 +140,11 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 			return;
 		}
 
+		if (!skillButton.skill) {
+			Debug.LogError("Button skill not defined!");
+			return;
+		}
+
 		if (character.ap < skillButton.skill.ap)
 		{
 			Debug.LogError("Not enough points!");
