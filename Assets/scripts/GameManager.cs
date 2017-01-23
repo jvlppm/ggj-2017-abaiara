@@ -241,10 +241,10 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 
 			Task completion = null;
 
-			if (!characters.Any(c => c.team == 0)) {
+			if (!characters.Any(c => c.team == 0 && c.hp > 0)) {
 				completion = AnimatedMessage.instance.ShowMessageAsync("Vitória Player 2!");
 			}
-			else if (!characters.Any(c => c.team == 1)) {
+			else if (!characters.Any(c => c.team == 1 && c.hp > 0)) {
 				completion = AnimatedMessage.instance.ShowMessageAsync("Vitória Player 1!");
 			}
 
