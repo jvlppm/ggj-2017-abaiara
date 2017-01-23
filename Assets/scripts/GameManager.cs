@@ -43,7 +43,7 @@ public class GameManager : MonoBehaviour, UI.SkillButton.IHandler {
 	{
 		currentTeam = team;
 		foreach (var p in characters) {
-			if (p.team == currentTeam) {
+			if (p.team == currentTeam && p.hp > 0) {
 				SetSelection(p);
 				break;
 			}
